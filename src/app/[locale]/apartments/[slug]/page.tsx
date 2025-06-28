@@ -1,75 +1,55 @@
+// src/app/[locale]/apartments/[slug]/page.tsx
 
+import type { PageProps } from 'next';
+import type { Metadata } from 'next';
 import { apartments } from '@/lib/data';
 import { notFound } from 'next/navigation';
-import type { Metadata } from 'next';
 import ApartmentDetailClientContent from './apartment-detail-client-content';
 import { Meteors } from '@/components/ui/meteors';
-import { locales } from '@/i18n'; // Import locales
-
-interface ApartmentDetailPageProps {
-  params: {
-    slug: string;
-    locale: string;
-  };
-  searchParams?: { [key: string]: string | string[] | undefined };
-}
+import { locales } from '@/i18n';
 
 export async function generateStaticParams() {
-  const params = [];
-  // Use imported locales constant
-  for (const locale of locales) { 
-    for (const apartment of apartments) {
-      params.push({ locale, slug: apartment.slug });
-    }
-  }
-  return params;
+  return locales.flatMap((locale) =>
+    apartments.map((ap) => ({ locale, slug: ap.slug }))
+  );
 }
 
-export async function generateMetadata({ params }: ApartmentDetailPageProps): Promise<Metadata> {
-  const { slug, locale } = params;
+export async function generateMetadata({
+  params,
+}: PageProps<{ locale: string; slug: string }>): Promise<Metadata> {
+  const { locale, slug } = params;
+  const ap = apartments.find((a) => a.slug === slug);
+  if (!ap) return { title: 'Apartment Not Found' };
 
-  const apartment = apartments.find((ap) => ap.slug === slug);
-
-  if (!apartment) {
-    return {
-      title: 'Apartment Not Found',
-    };
-  }
-  
-  const name = apartment.name[locale] || apartment.name.en;
-  const rawDescription = apartment.description[locale] || apartment.description.en;
-  // Ensure description is a string and trim it for meta
-  const metaDescription = typeof rawDescription === 'string' 
-    ? rawDescription.replace(/\*\*|##|###|\n/g, " ").substring(0, 160) // Remove markdown, newlines for meta
-    : 'View details for this apartment.';
-
+  const name = ap.name[locale] || ap.name.en;
+  const raw = ap.description[locale] || ap.description.en;
+  const description =
+    typeof raw === 'string'
+      ? raw.replace(/\*\*|##|###|\n/g, ' ').slice(0, 160)
+      : '';
 
   return {
     title: name,
-    description: metaDescription,
+    description,
     openGraph: {
       title: name,
-      description: metaDescription,
-      images: apartment.images.length > 0 ? [{ url: apartment.images[0] }] : [],
+      description,
+      images: ap.images.length ? [{ url: ap.images[0] }] : [],
     },
   };
 }
 
+export default function ApartmentDetailPage({
+  params,
+}: PageProps<{ locale: string; slug: string }>) {
+  const { locale, slug } = params;
+  const ap = apartments.find((a) => a.slug === slug);
+  if (!ap) notFound();
 
-export default async function ApartmentDetailPage({ params, searchParams }: ApartmentDetailPageProps) {
-  const apartment = apartments.find((ap) => ap.slug === params.slug);
-
-  if (!apartment) {
-    notFound();
-  }
-  
   return (
-    <div className="relative bg-background min-h-screen flex-grow"> 
+    <div className="relative bg-background min-h-screen flex-grow">
       <Meteors number={60} className="opacity-70 -z-10 absolute inset-0" />
-      <ApartmentDetailClientContent
-        apartment={apartment}
-        slug={params.slug}
-      />
+      <ApartmentDetailClientContent apartment={ap} slug={slug} />
     </div>
   );
 }
