@@ -1,25 +1,31 @@
+// src/app/[locale]/contact/page.tsx
 
-// This file is now a Server Component
-
-import { getTranslations } from 'next-intl/server';
+import type { PageProps } from 'next';
 import type { Metadata } from 'next';
-import ContactClientContent from './contact-client-content'; // Import the new client component
+import { getTranslations } from 'next-intl/server';
+import ContactClientContent from './contact-client-content';
+import { locales } from '@/i18n';
 
-interface ContactPageProps {
-  params: { locale: string };
-  searchParams?: { [key: string]: string | string[] | undefined };
+// 1) Tell Next.js which locales to generate
+export async function generateStaticParams() {
+  return locales.map((locale) => ({ locale }));
 }
 
-export async function generateMetadata({params: {locale}}: ContactPageProps): Promise<Metadata> {
-  const t = await getTranslations({locale, namespace: 'ContactPage'});
- 
+// 2) Use PageProps<{locale}> for metadata
+export async function generateMetadata({
+  params,
+}: PageProps<{ locale: string }>): Promise<Metadata> {
+  const { locale } = params;
+  const t = await getTranslations({ locale, namespace: 'ContactPage' });
   return {
     title: t('title'),
     description: t('description'),
   };
 }
 
-export default function ContactPage({ params, searchParams }: ContactPageProps) {
-  // This server component now simply renders the client component
-  return <ContactClientContent params={params} searchParams={searchParams} />;
+// 3) Main page component using the generic PageProps
+export default function ContactPage({
+  params,
+}: PageProps<{ locale: string }>) {
+  return <ContactClientContent params={params} />;
 }
