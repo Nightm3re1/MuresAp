@@ -1,26 +1,23 @@
-
-// This file is now a Server Component
-
-import { getTranslations } from 'next-intl/server';
+// src/app/[locale]/apartments/page.tsx
+import type { PageProps } from 'next';
 import type { Metadata } from 'next';
-import ApartmentsClientContent from './apartments-client-content'; // Import the new client component
+import { getTranslations } from 'next-intl/server';
+import ApartmentsClientContent from './apartments-client-content';
 
-interface ApartmentsPageProps {
-  params: { locale: string };
-  searchParams?: { [key: string]: string | string[] | undefined };
-}
+export async function generateMetadata({
+  params,
+}: PageProps<{ locale: string }>): Promise<Metadata> {
+  const { locale } = params;
+  const t = await getTranslations({ locale, namespace: 'ApartmentsPage' });
 
-export async function generateMetadata({params: {locale}}: ApartmentsPageProps): Promise<Metadata> {
-  const t = await getTranslations({locale, namespace: 'ApartmentsPage'});
- 
   return {
     title: t('title'),
     description: t('description'),
   };
 }
 
-export default function ApartmentsPage({ params, searchParams }: ApartmentsPageProps) {
-  // This server component now simply renders the client component
-  // It can pass params and searchParams if ApartmentsClientContent needs them
-  return <ApartmentsClientContent params={params} searchParams={searchParams} />;
+export default function ApartmentsPage({
+  params,
+}: PageProps<{ locale: string }>) {
+  return <ApartmentsClientContent params={params} />;
 }
