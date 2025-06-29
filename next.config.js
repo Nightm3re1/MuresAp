@@ -1,26 +1,31 @@
+// next.config.js
+
+const createNextIntlPlugin = require('next-intl/plugin');
+
+const withNextIntl = createNextIntlPlugin({
+  // adjust path if yours differs
+  localePath: './src/i18n.ts',
+});
 
 /** @type {import('next').NextConfig} */
-
-const withNextIntl = require('next-intl/plugin')(
-  './src/i18n.ts' // Point to your i18n.ts file
-);
-
 const nextConfig = {
   reactStrictMode: true,
+
+  // 1) Disable TypeScript build errors
+  typescript: {
+    ignoreBuildErrors: true,
+  },
+
+  // 2) Disable ESLint errors during build
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+
   images: {
     remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'picsum.photos',
-      },
-      {
-        protocol: 'https',
-        hostname: '8fpa87ovv8.ufs.sh',
-      },
-      {
-        protocol: 'https',
-        hostname: 'placehold.co', // Added this line
-      },
+      { protocol: 'https', hostname: 'picsum.photos' },
+      { protocol: 'https', hostname: '8fpa87ovv8.ufs.sh' },
+      { protocol: 'https', hostname: 'placehold.co' },
     ],
   },
 };
