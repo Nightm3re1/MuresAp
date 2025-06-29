@@ -1,28 +1,38 @@
+// src/app/[locale]/page.tsx
 
-import { getTranslations } from 'next-intl/server';
+import type { PageProps } from 'next';
 import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 import HomePageClient from '@/components/ui/home-page-client';
 import { Meteors } from '@/components/ui/meteors';
+import { locales } from '@/i18n';
 
+// 1) Generate one page per locale
+export async function generateStaticParams() {
+  return locales.map((locale) => ({ locale }));
+}
 
-// For server components (like this page) that need translations for metadata:
-export async function generateMetadata({params: {locale}}: {params: {locale: string}}): Promise<Metadata> {
-  const t = await getTranslations({locale, namespace: 'Navbar'}); // Using Navbar for 'home'
-  const brandT = await getTranslations({locale, namespace: 'Brand'});
-
+// 2) generateMetadata using PageProps<{ locale }>
+export async function generateMetadata({
+  params,
+}: PageProps<{ locale: string }>): Promise<Metadata> {
+  const { locale } = params;
+  const t = await getTranslations({ locale, namespace: 'Navbar' });
+  const brandT = await getTranslations({ locale, namespace: 'Brand' });
   return {
     title: t('home'),
     description: `Welcome to ${brandT('name')} - Your premier choice for apartment rentals in Târgu Mureș.`,
   };
 }
 
-
-export default function HomePage() {
+// 3) Default export uses the same PageProps<{ locale }>
+export default function HomePage({
+  params,
+}: PageProps<{ locale: string }>) {
   return (
-    <div className="relative flex-grow"> {/* Added flex-grow to ensure it expands */}
+    <div className="relative flex-grow">
       <Meteors number={60} className="opacity-70 -z-10 absolute inset-0" />
-      <HomePageClient />
+      <HomePageClient locale={params.locale} />
     </div>
   );
 }
-
