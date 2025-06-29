@@ -4,12 +4,14 @@ import type { PageProps } from 'next';
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import DiscountsClientContent from './discounts-client-content';
-
 import { locales } from '@/i18n';
 
 // 1) Tell Next.js to statically generate for all locales
 export async function generateStaticParams() {
-  return locales.map((locale) => ({ locale }));
+  return locales.map((l) => {
+    const code = typeof l === 'string' ? l : l.code ?? l.locale;
+    return { locale: code };
+  });
 }
 
 // 2) Metadata generation using PageProps

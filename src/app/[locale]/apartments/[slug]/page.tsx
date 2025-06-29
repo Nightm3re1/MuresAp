@@ -8,12 +8,18 @@ import ApartmentDetailClientContent from './apartment-detail-client-content';
 import { Meteors } from '@/components/ui/meteors';
 import { locales } from '@/i18n';
 
+// 1) Generate every locale/slug combination with string codes
 export async function generateStaticParams() {
-  return locales.flatMap((locale) =>
-    apartments.map((ap) => ({ locale, slug: ap.slug }))
-  );
+  return locales.flatMap((l) => {
+    const code = typeof l === 'string' ? l : l.code ?? l.locale;
+    return apartments.map((ap) => ({
+      locale: code,
+      slug: ap.slug,
+    }));
+  });
 }
 
+// 2) Metadata generation using PageProps
 export async function generateMetadata({
   params,
 }: PageProps<{ locale: string; slug: string }>): Promise<Metadata> {
@@ -39,6 +45,7 @@ export async function generateMetadata({
   };
 }
 
+// 3) Main page component
 export default function ApartmentDetailPage({
   params,
 }: PageProps<{ locale: string; slug: string }>) {

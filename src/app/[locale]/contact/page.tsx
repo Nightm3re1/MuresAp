@@ -8,7 +8,10 @@ import { locales } from '@/i18n';
 
 // 1) Tell Next.js which locales to generate
 export async function generateStaticParams() {
-  return locales.map((locale) => ({ locale }));
+  return locales.map((l) => {
+    const code = typeof l === 'string' ? l : l.code ?? l.locale;
+    return { locale: code };
+  });
 }
 
 // 2) Use PageProps<{locale}> for metadata

@@ -7,9 +7,12 @@ import HomePageClient from '@/components/ui/home-page-client';
 import { Meteors } from '@/components/ui/meteors';
 import { locales } from '@/i18n';
 
-// 1) Generate one page per locale
+// 1) Generate one page per locale, pulling out string codes
 export async function generateStaticParams() {
-  return locales.map((locale) => ({ locale }));
+  return locales.map((l) => {
+    const code = typeof l === 'string' ? l : l.code ?? l.locale;
+    return { locale: code };
+  });
 }
 
 // 2) generateMetadata using PageProps<{ locale }>
