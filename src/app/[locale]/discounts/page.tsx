@@ -1,25 +1,31 @@
+// src/app/[locale]/discounts/page.tsx
 
-// This file is now a Server Component
-
-import { getTranslations } from 'next-intl/server';
+import type { PageProps } from 'next';
 import type { Metadata } from 'next';
-import DiscountsClientContent from './discounts-client-content'; // Import the new client component
+import { getTranslations } from 'next-intl/server';
+import DiscountsClientContent from './discounts-client-content';
 
-interface DiscountsPageProps {
-  params: { locale: string };
-  searchParams?: { [key: string]: string | string[] | undefined };
+import { locales } from '@/i18n';
+
+// 1) Tell Next.js to statically generate for all locales
+export async function generateStaticParams() {
+  return locales.map((locale) => ({ locale }));
 }
 
-export async function generateMetadata({params: {locale}}: DiscountsPageProps): Promise<Metadata> {
-  const t = await getTranslations({locale, namespace: 'DiscountsPage'});
- 
+// 2) Metadata generation using PageProps
+export async function generateMetadata({
+  params,
+}: PageProps<{ locale: string }>): Promise<Metadata> {
+  const { locale } = params;
+  const t = await getTranslations({ locale, namespace: 'DiscountsPage' });
   return {
     title: t('title'),
-    description: t('description'),
   };
 }
 
-export default function DiscountsPage({ params, searchParams }: DiscountsPageProps) {
-  // This server component now simply renders the client component
-  return <DiscountsClientContent />;
+// 3) Page component also uses PageProps
+export default function DiscountsPage({
+  params,
+}: PageProps<{ locale: string }>) {
+  return <DiscountsClientContent params={params} />;
 }
