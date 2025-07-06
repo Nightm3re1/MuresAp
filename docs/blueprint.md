@@ -1,4 +1,4 @@
-# **App Name**: Mureș Apartments
+# **App Name**: bolt.new
 
 ## Core Features:
 
